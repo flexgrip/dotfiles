@@ -1,0 +1,1 @@
+/Users/flexgrip/.config/fish/config.fish

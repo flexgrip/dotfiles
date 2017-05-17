@@ -1,0 +1,74 @@
+# Path to Oh My Fish install.
+set -q XDG_DATA_HOME
+  and set -gx OMF_PATH "$XDG_DATA_HOME/omf"
+  or set -gx OMF_PATH "$HOME/.local/share/omf"
+
+# Customize Oh My Fish configuration path.
+#set -gx OMF_CONFIG "/Users/flexgrip/.config/omf"
+
+# Load oh-my-fish configuration.
+source $OMF_PATH/init.fish
+
+# Embulk
+set -U fish_user_paths "$HOME/.embulk/bin" $fish_user_paths
+
+# digdag
+set -U fish_user_paths "$HOME/bin" $fish_user_paths
+
+# Laravel Spark
+# set -U fish_user_paths "$HOME/Applications/spark-installer" $fish_user_paths
+
+# composer via sh?
+# set -U fish_user_paths "$HOME/.composer/vendor/bin" $fish_user_paths
+
+#set -gx PATH \$PATH "$HOME/.embulk/bin"
+#bass export embulk="$HOME/.embulk/bin"
+#set -U embulk_user_path "$HOME/.embulk/bin" $embulk_user_path
+
+# funneldash vagrant
+alias fd  "cd ~/Projects/funneldash-main"
+alias fdu "cd ~/Projects/funneldash-main; vagrant up"
+alias fdh "cd ~/Projects/funneldash-main; vagrant halt"
+alias fds "cd ~/Projects/funneldash-main; vagrant ssh"
+
+# armasearch laradock
+alias asu "cd ~/Projects/armasearch/laradock; docker-compose up -d nginx php-fpm mysql"
+alias ass "cd ~/Projects/armasearch/laradock; docker-compose stop"
+alias as "cd ~/Projects/armasearch/laradock"
+alias ase "cd ~/Projects/armasearch/laradock; docker-compose exec workspace bash"
+
+# Composer
+alias composer "php /usr/local/bin/composer.phar"
+
+function nvm
+      bass source ~/.nvm/nvm.sh ';' nvm $argv
+end
+
+function embulk
+	bass embulk $argv
+end
+
+function digdag
+	bass digdag $argv
+end
+
+function webserver
+	sudo python -m SimpleHTTPServer $argv
+end
+
+# The next line updates PATH for the Google Cloud SDK.
+bass source '/Users/flexgrip/bin/google-cloud-sdk/path.bash.inc'
+
+# The next line enables shell command completion for gcloud.
+bass source '/Users/flexgrip/bin/google-cloud-sdk/completion.bash.inc'
+
+rvm default
+
+# Azure bash completion
+bass source '/Users/flexgrip/bin/azure-cli/az.completion'
+
+# Azure environment variables
+set -x AZURE_SUBSCRIPTION_ID 9c2aef24-7f02-4ad4-ace5-19d5781a8198
+set -x AZURE_TENANT_ID b7a2b0e5-5a54-47b7-9ed0-a257a84a9ff3
+set -x AZURE_CLIENT_ID 8e8a2ec8-563a-4c63-ad98-4e2f9d8d4197
+set -x AZURE_CLIENT_SECRET XTV6Xso9Zqxvi+pSseEAxtbAIfgEQeGNFfGkaR7XRjM=

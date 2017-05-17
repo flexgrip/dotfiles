@@ -1,0 +1,45 @@
+# Homebrew: https://brew.sh
+/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+
+# Nano syntax highlighting from: https://github.com/scopatz/nanorc
+brew install nano
+curl https://raw.githubusercontent.com/scopatz/nanorc/master/install.sh | sh
+
+# === FISH STUFF === #
+
+# install fish
+brew install fish
+
+# install thefuck
+brew install thefuck
+
+# install fzf
+
+# install oh-my-fish
+curl -L https://get.oh-my.fish | fish
+
+# install fisher
+curl -Lo ~/.config/fish/functions/fisher.fish --create-dirs git.io/fisher
+
+# install powerline fonts: https://github.com/powerline/fonts
+git clone https://github.com/powerline/fonts.git
+cd fonts
+./install.sh
+cd ..
+rm -rf fonts
+
+# Fix no bash_profile
+touch ~/.bash_profile
+
+# ... copy fish config
+cp -R ~/.dotfiles/config.fish ~/.config/fish/config.fish
+
+# install awesomeness
+fisher fzf edc/bass omf/thefuck
+
+# ============================
+# ============================
+# ============================
+
+# Install http
+brew install http
