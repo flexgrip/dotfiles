@@ -1,8 +1,12 @@
 # Homebrew: https://brew.sh
 /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 
+# Install wget
+brew install wget
+
 # Nano syntax highlighting from: https://github.com/scopatz/nanorc
 brew install nano
+
 curl https://raw.githubusercontent.com/scopatz/nanorc/master/install.sh | sh
 
 # === FISH STUFF === #
@@ -14,6 +18,8 @@ brew install fish
 brew install thefuck
 
 # install fzf
+brew install fzf
+/usr/local/opt/fzf/install  <-- run that
 
 # install oh-my-fish
 curl -L https://get.oh-my.fish | fish
@@ -42,4 +48,4 @@ fisher fzf edc/bass omf/thefuck
 # ============================
 
 # Install http
-brew install http
+brew install httpie
