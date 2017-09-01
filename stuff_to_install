@@ -57,3 +57,9 @@ php composer-setup.php
 php -r "unlink('composer-setup.php');"
 
 mv composer.phar /usr/local/bin/composer.phar
+
+### Decrypt files
+openssl des -d -in MyPic.jpg.enc -out MyPic1.jpg
+
+### Encrypt files
+openssl des -in MyPic.jpg -out MyPic.jpg.enc
