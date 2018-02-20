@@ -75,6 +75,9 @@ alias composer "php /usr/local/bin/composer.phar"
 # Laravel Spark
 set -U fish_user_paths "$HOME/.bin/spark-installer" $fish_user_paths
 
+# Composer apps
+set -U fish_user_paths "$HOME/.composer/vendor/bin" $fish_user_paths
+
 # function embulk
 #         bass embulk $argv
 # end
@@ -102,10 +105,18 @@ alias fdup "cd ~/Projects/funneldash-app/laradock; docker-compose up -d nginx ph
 alias fdssh "cd ~/Projects/funneldash-app; docker-compose exec workspace bash"
 alias fdstop "cd ~/Projects/funneldash-app/laradock; docker-compose stop; cd -"
 
+# funneldash-bot artisan/ngrok
+alias fdbot  "cd ~/Projects/funneldash-bot"
+# alias fdbotup  "cd ~/Projects/funneldash-bot; php artisan serve --host 0.0.0.0 --port 8080 & tab ~/Projects/funneldash-bot ngrok start app bot"
+function fdbotup
+    tab ~/Projects/funneldash-bot php artisan serve --host 0.0.0.0 --port 8080
+    and tab ~/Projects/funneldash-bot ngrok start app bot
+end
+
 # armasearch laradock
-alias asu "cd ~/Projects/armasearch/laradock; docker-compose up -d nginx php-fpm mysql"
-alias ass "cd ~/Projects/armasearch/laradock; docker-compose stop"
-alias as "cd ~/Projects/armasearch/laradock"
+alias asu "cd ~/Projects/armasearch/laradock; docker-compose up -d nginx php-fpm mysql; cd -"
+alias ass "cd ~/Projects/armasearch/laradock; docker-compose stop; cd -"
+alias as "cd ~/Projects/armasearch"
 alias ase "cd ~/Projects/armasearch/laradock; docker-compose exec workspace bash"
 
 
@@ -113,3 +124,116 @@ alias ase "cd ~/Projects/armasearch/laradock; docker-compose exec workspace bash
 set -gx CLICOLOR 1
 set -gx TERM xterm-color
 set fish_term24bit 1
+
+eval (python -m virtualfish)
+
+functions -c fish_prompt _old_fish_prompt
+function fish_prompt
+  if set -q VIRTUAL_ENV
+    echo -n -s (set_color -b blue white) "(" (basename "$VIRTUAL_ENV") ")" (set_color normal) " "
+  end
+  _old_fish_prompt
+end
+
+function fish_right_prompt
+    # last status
+    test $status != 0
+    and printf (set_color red)"⏎ "
+
+    if git rev-parse ^/dev/null
+        # Magenta if branch detached else green
+        git branch -qv | grep "\*" | string match -rq detached
+        and set_color brmagenta
+        or set_color brgreen
+
+        # Need optimization on this block (eliminate space)
+        git name-rev --name-only HEAD
+
+        # Merging state
+        git merge -q ^/dev/null
+        or printf ':'(set_color red)'merge'
+        printf ' '
+
+        # Symbols
+        for i in (git branch -qv --no-color|grep \*|cut -d' ' -f4-|cut -d] -f1|tr , \n)\
+ (git status --porcelain | cut -c 1-2 | uniq)
+            switch $i
+                case "*[ahead *"
+                    printf (set_color magenta)⬆' '
+                case "*behind *"
+                    printf (set_color magenta)⬇' '
+                case "."
+                    printf (set_color green)✚' '
+                case " D"
+                    printf (set_color red)✖' '
+                case "*M*"
+                    printf (set_color blue)✱' '
+                case "*R*"
+                    printf (set_color brmagenta)➜' '
+                case "*U*"
+                    printf (set_color bryellow)═' '
+                case "??"
+                    printf (set_color brwhite)◼' '
+            end
+        end
+    end
+end
+
+# Open new iTerm and Terminal tabs from the command line
+#
+# Author: Justin Hileman (http://justinhileman.com)
+#
+# Usage:
+#     tab                   Opens the current directory in a new tab
+#     tab [PATH]            Open PATH in a new tab
+#     tab [CMD]             Open a new tab and execute CMD
+#     tab [PATH] [CMD] ...  You can prolly guess
+
+function tab -d "Open the current directory in a new tab"
+  set -l cmd ""
+  set -l cdto (pwd)
+
+  if test (count $argv) -gt 0
+    pushd . >/dev/null
+    if test -d $argv[1]
+      cd $argv[1]
+      set cdto (pwd)
+      set -e argv[1]
+    end
+    popd >/dev/null
+  end
+
+  if test (count $argv) -gt 0
+    set cmd "; $argv"
+  end
+
+  switch $TERM_PROGRAM
+
+  case 'iTerm.app'
+    osascript 2>/dev/null -e "
+      tell application \"iTerm\"
+        tell current window
+	  create tab with default profile
+          tell the current session
+            write text \"cd \\\"$cdto\\\"$cmd\"
+          end tell
+        end tell
+      end tell
+    "
+
+  case 'Apple_Terminal'
+    osascript 2>/dev/null -e "
+      tell application \"Terminal\"
+        activate
+        tell application \"System Events\" to keystroke \"t\" using command down
+        repeat while contents of selected tab of window 1 starts with linefeed
+          delay 0.01
+        end repeat
+        do script \"cd \\\"$cdto\\\"$cmd\" in window 1
+      end tell
+    "
+
+  case '*'
+    echo "Unknown terminal: $TERM_PROGRAM" >&2
+  end
+end
