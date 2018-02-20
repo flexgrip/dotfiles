@@ -78,13 +78,29 @@ set -U fish_user_paths "$HOME/.bin/spark-installer" $fish_user_paths
 # Composer apps
 set -U fish_user_paths "$HOME/.composer/vendor/bin" $fish_user_paths
 
+if test -z "$COMPOSER_BIN_PATH"
+  set -gx COMPOSER_BIN_PATH $HOME/.composer/vendor/bin
+end
+set PATH $COMPOSER_BIN_PATH $PATH
+
+# get composer path
+if test -z "$COMPOSER_BIN"
+  if type "composer.phar" > /dev/null
+    set -gx COMPOSER_BIN (which composer.phar)
+  else if type "composer" > /dev/null
+    set -gx COMPOSER_BIN (which composer)
+  else
+    echo "FAILED to find Composer! Please install composer.phar to your PATH."
+  end
+end
+
 # function embulk
 #         bass embulk $argv
 # end
 
-# function digdag
-#         bass digdag $argv
-# end
+function digdag
+        bass ~/bin/digdag $argv
+end
 
 function webserver
         sudo python -m SimpleHTTPServer $argv
@@ -101,7 +117,7 @@ end
 ### ALIASES FOR WORK ###
 # funneldash-app laradock
 alias fd  "cd ~/Projects/funneldash-app"
-alias fdup "cd ~/Projects/funneldash-app/laradock; docker-compose up -d nginx php-fpm postgres workspace elasticsearch; cd -"
+alias fdup "cd ~/Projects/funneldash-app/laradock; docker-compose up -d nginx php-fpm postgres workspace; cd -"
 alias fdssh "cd ~/Projects/funneldash-app; docker-compose exec workspace bash"
 alias fdstop "cd ~/Projects/funneldash-app/laradock; docker-compose stop; cd -"
 
@@ -113,10 +129,15 @@ function fdbotup
     and tab ~/Projects/funneldash-bot ngrok start app bot
 end
 
+function laradock-clean --description 'Remove ALL containers associated with laradock'
+  command echo 'Removing ALL containers associated with laradock'
+  bass docker ps -a | awk '{ print $1,$2 }' | grep laradock | awk '{print $1}' | xargs -0 -I {} docker rm {}
+end
+
 # armasearch laradock
 alias asu "cd ~/Projects/armasearch/laradock; docker-compose up -d nginx php-fpm mysql; cd -"
 alias ass "cd ~/Projects/armasearch/laradock; docker-compose stop; cd -"
-alias as "cd ~/Projects/armasearch"
+alias as "cd ~/Projects/armasearch/"
 alias ase "cd ~/Projects/armasearch/laradock; docker-compose exec workspace bash"
 
 
@@ -237,3 +258,5 @@ function tab -d "Open the current directory in a new tab"
     echo "Unknown terminal: $TERM_PROGRAM" >&2
   end
 end
+
+test -e {$HOME}/.iterm2_shell_integration.fish ; and source {$HOME}/.iterm2_shell_integration.fish
